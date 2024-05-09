@@ -171,6 +171,12 @@ static inline void _out_fct(char character, void* buffer, size_t idx, size_t max
 static inline unsigned int _strnlen_s(const char* str, size_t maxsize)
 {
   const char* s;
+
+  // bug fixed for str equals to null
+  if (str == NULL) {
+    return 0;
+  }
+
   for (s = str; *s && maxsize--; ++s);
   return (unsigned int)(s - str);
 }
@@ -794,8 +800,13 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
       }
 
       case 's' : {
-        const char* p = va_arg(va, char*);
+        // const char* p = va_arg(va, char*);
+        char* p = va_arg(va, char*);
         unsigned int l = _strnlen_s(p, precision ? precision : (size_t)-1);
+        // bug fixed for p equals to null
+        if (p == NULL) {
+          p = "null";
+        }
         // pre padding
         if (flags & FLAGS_PRECISION) {
           l = (l < precision ? l : precision);
